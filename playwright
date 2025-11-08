@@ -1,0 +1,31 @@
+from playwright.sync_api import sync_playwright
+
+def run():
+    with sync_playwright() as p:
+        # Launch browser
+        browser = p.chromium.launch(headless=False)  # Set to True for headless mode
+        page = browser.new_page()
+
+        # Go to Google
+        page.goto("https://www.google.com")
+
+        # Accept cookies if prompt appears (optional)
+        try:
+            page.locator("button:has-text('Accept all')").click(timeout=3000)
+        except:
+            pass  # Ignore if no consent popup
+
+        # Search for "Election results in india"
+        page.fill("textarea[name='q']", "Election results in india")
+        page.keyboard.press("Enter")
+
+        # Wait for results and click the first result
+        page.wait_for_selector("h3")
+        page.locator("h3").first.click()
+
+        # Keep browser open a bit to see the result
+        page.wait_for_timeout(5000)
+        browser.close()
+
+if __name__ == "__main__":
+    run()
